@@ -18,6 +18,8 @@ let HorizontalPhotosCount;
 let VerticalPhotosCount;
 let offset = 0;
 
+let shared = 0;
+
 Init_UI();
 function Init_UI() {
     getViewPortPhotosRanges();
@@ -71,6 +73,7 @@ function attachCmd() {
     $('#renderManageUsersMenuCmd').on('click', renderManageUsers);
     $('#editProfilCmd').on('click', renderEditProfilForm);
     $('#aboutCmd').on("click", renderAbout);
+    $('#newPhotoCmd').on("click", renderAddPhoto);
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// Header management
@@ -392,7 +395,7 @@ function renderCreateProfil() {
         <br/>
         <form class="form" id="createProfilForm"'>
             <fieldset>
-                <legend>Adresse ce courriel</legend>
+                <legend>Adresse courriel</legend>
                 <input  type="email" 
                         class="form-control Email" 
                         name="Email" 
@@ -586,7 +589,7 @@ function renderEditProfilForm() {
             <form class="form" id="editProfilForm"'>
                 <input type="hidden" name="Id" id="Id" value="${loggedUser.Id}"/>
                 <fieldset>
-                    <legend>Adresse ce courriel</legend>
+                    <legend>Adresse courriel</legend>
                     <input  type="email" 
                             class="form-control Email" 
                             name="Email" 
@@ -719,7 +722,7 @@ function renderLoginForm() {
                         required
                         RequireMessage = 'Veuillez entrer votre courriel'
                         InvalidMessage = 'Courriel invalide'
-                        placeholder="adresse de courriel"
+                        placeholder="Adresse courriel"
                         value='${Email}'> 
                 <span style='color:red'>${EmailError}</span>
                 <input  type='password' 
@@ -746,6 +749,85 @@ function renderLoginForm() {
         showWaitingGif();
         login(credential);
     });
+}
+
+function renderAddPhoto(){
+    let title = "";
+    let description = "";
+    let image = "";
+    let loggedUser = API.retrieveLoggedUser();
+
+    noTimeout();
+    eraseContent();
+    UpdateHeader("Ajout de photo", "Add");
+    $("#newPhotoCmd").hide();
+    $("#content").append(`
+    <br/>
+    <form class="form" id="addPhotoForm"'>
+        <input type="hidden" name="Id" id="Id" value="${loggedUser.Id}"/>
+        <fieldset>
+            <legend>Informations</legend>
+            <input  type="text" 
+                    class="form-control Alpha" 
+                    name="Title" 
+                    id="Title"
+                    placeholder="Titre" 
+                    required 
+                    RequireMessage = 'Veuillez entrer le titre de la publication'
+                    InvalidMessage = 'Titre invalide'
+                    value="${title}" >
+
+            <textarea class="form-control Alpha" 
+                    name="Description" 
+                    id="Description"
+                    placeholder="Description" 
+                    required 
+                    RequireMessage = 'Veuillez entrer la description de la publication'
+                    InvalidMessage = 'Description invalide'
+                    value="${description}"
+                    style="height: 100px" ></textarea>
+
+            <label> 
+            <input  type="checkbox" 
+                    name="Shared" 
+                    id="Shared" 
+                    value="${shared}" 
+                    onclick = changeShared()>
+                    Partager la publication
+                    </label>
+        </fieldset>
+        <fieldset>
+            <legend>Image</legend>
+            <div class='imageUploader' 
+                        newImage='true' 
+                        controlId='Photo' 
+                        imageSrc='images/PhotoCloudLogo.png' 
+                        waitingImage="images/PhotoCloudLogo.png">
+        </div>
+        </fieldset>
+
+        <input type='submit' name='submit' id='savePost' value="Enregistrer" class="form-control btn-primary">
+        
+    </form>
+    <div class="cancel">
+        <button class="form-control btn-secondary" id="abortAddPhotoCmd">Annuler</button>
+    </div>
+    `);
+    $('#abortAddPhotoCmd').on('click', renderPhotos);
+    $('#addPhotoForm').on("submit", function (event) {
+        let credential = getFormData($('#addPhotoForm'));
+        credential['Shared'] = shared;
+        console.log(credential);
+    });
+}
+
+function changeShared(){
+    if(shared == 0){
+        shared = 1;
+    }
+    else {
+        shared = 0;
+    }
 }
 function getFormData($form) {
     const removeTag = new RegExp("(<[a-zA-Z0-9]+>)|(</[a-zA-Z0-9]+>)", "g");
