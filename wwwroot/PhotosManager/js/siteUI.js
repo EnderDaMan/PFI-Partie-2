@@ -813,9 +813,77 @@ function renderAddPhoto(){
         <button class="form-control btn-secondary" id="abortAddPhotoCmd">Annuler</button>
     </div>
     `);
+    initFormValidation(); // important do to after all html injection!
     $('#abortAddPhotoCmd').on('click', renderPhotos);
     $('#addPhotoForm').on("submit", function (event) {
         let credential = getFormData($('#addPhotoForm'));
+        credential['Shared'] = shared;
+        console.log(credential);
+    });
+}
+
+function renderModifyPhoto(id){
+    let Photo = API.GetPhotosById(id);
+
+    noTimeout();
+    eraseContent();
+    UpdateHeader("Modification de photo", "Modify");
+    $("#newPhotoCmd").hide();
+    $("#content").append(`
+    <br/>
+    <form class="form" id="modifyPhotoForm"'>
+        <input type="hidden" name="Id" id="Id" value="${loggedUser.Id}"/>
+        <fieldset>
+            <legend>Informations</legend>
+            <input  type="text" 
+                    class="form-control Alpha" 
+                    name="Title" 
+                    id="Title"
+                    placeholder="Titre" 
+                    required 
+                    RequireMessage = 'Veuillez entrer le titre de la publication'
+                    InvalidMessage = 'Titre invalide'
+                    value="${Photo.Title}" >
+
+            <textarea class="form-control Alpha" 
+                    name="Description" 
+                    id="Description"
+                    placeholder="Description" 
+                    required 
+                    RequireMessage = 'Veuillez entrer la description de la publication'
+                    InvalidMessage = 'Description invalide'
+                    value="${Photo.Description}"
+                    style="height: 100px" ></textarea>
+
+            <label> 
+            <input  type="checkbox" 
+                    name="Shared" 
+                    id="Shared" 
+                    value="${shared}" 
+                    onclick = changeShared()>
+                    Partager la publication
+                    </label>
+        </fieldset>
+        <fieldset>
+            <legend>Image</legend>
+            <div class='imageUploader' 
+                        newImage='true' 
+                        controlId='Photo' 
+                        imageSrc='${Photo.Image}'>
+        </div>
+        </fieldset>
+
+        <input type='submit' name='submit' id='savePost' value="Enregistrer" class="form-control btn-primary">
+        
+    </form>
+    <div class="cancel">
+        <button class="form-control btn-secondary" id="abortAddPhotoCmd">Annuler</button>
+    </div>
+    `);
+    initFormValidation(); // important do to after all html injection!
+    $('#abortAddPhotoCmd').on('click', renderPhotos);
+    $('#modifyPhotoForm').on("submit", function (event) {
+        let credential = getFormData($('#modifyPhotoForm'));
         credential['Shared'] = shared;
         console.log(credential);
     });
