@@ -254,6 +254,11 @@ async function deleteProfil() {
             renderError("Un problème est survenu.");
     }
 }
+async function createPhoto(credential) {
+    if (await API.CreatePhoto(credential)) {
+        renderPhotos();
+    }
+}
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// Views rendering
 function showWaitingGif() {
@@ -356,6 +361,8 @@ async function renderPhotos() {
     }
 }
 async function renderPhotosList() {
+    let photos = API.GetPhotos();
+    
     eraseContent();
     $("#content").append("<h2> En contruction </h2>");
 }
@@ -751,7 +758,7 @@ function renderLoginForm() {
     });
 }
 
-function renderAddPhoto(){
+function renderAddPhoto() {
     let title = "";
     let description = "";
     let image = "";
@@ -814,15 +821,20 @@ function renderAddPhoto(){
     </div>
     `);
     initFormValidation(); // important do to after all html injection!
+    initImageUploaders();
     $('#abortAddPhotoCmd').on('click', renderPhotos);
     $('#addPhotoForm').on("submit", function (event) {
         let credential = getFormData($('#addPhotoForm'));
         credential['Shared'] = shared;
         console.log(credential);
+        event.preventDefault();
+        showWaitingGif();
+        createPhoto(credential);
     });
 }
 
-function renderModifyPhoto(id){
+function renderModifyPhoto(id) {
+
     let Photo = API.GetPhotosById(id);
 
     noTimeout();
@@ -881,6 +893,7 @@ function renderModifyPhoto(id){
     </div>
     `);
     initFormValidation(); // important do to after all html injection!
+    initImageUploaders();
     $('#abortAddPhotoCmd').on('click', renderPhotos);
     $('#modifyPhotoForm').on("submit", function (event) {
         let credential = getFormData($('#modifyPhotoForm'));
@@ -889,14 +902,15 @@ function renderModifyPhoto(id){
     });
 }
 
-function changeShared(){
-    if(shared == 0){
+function changeShared() {
+    if (shared == 0) {
         shared = 1;
     }
     else {
         shared = 0;
     }
 }
+
 function getFormData($form) {
     const removeTag = new RegExp("(<[a-zA-Z0-9]+>)|(</[a-zA-Z0-9]+>)", "g");
     var jsonObject = {};
