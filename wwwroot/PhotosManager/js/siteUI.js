@@ -384,7 +384,7 @@ async function renderPhotosList() {
                 </div>
                 <div style=" position: relative;" class="detailsCmd">
                     <img style="position: absolute; top:10px; left: 10px" src="${photo.Owner.Avatar}" alt="" class="UserAvatarSmall cornerAvatar">
-                    <img style="width: 300px; height: 300px; object-fit: fill; border-radius: 20px;" src="${photo.Image}" alt="unloadedPhoto"/>
+                    <img style="width: 350px; height: 350px; object-fit: fill; border-radius: 20px;" src="${photo.Image}" alt="unloadedPhoto"/>
                 </div>
                 <span class="photoCreationDate">${new Date(photo.Date).toLocaleDateString('fr-FR', {
             weekday: 'long',
