@@ -362,22 +362,35 @@ async function renderPhotos() {
 }
 async function renderPhotosList() {
     let photos = await API.GetPhotos();
+    let loggedUser = API.retrieveLoggedUser();
+    let ownerCommands = "";
+    
     eraseContent();
     photos.data.forEach(photo => {
+        if(loggedUser.Id == photo.Owner.Id){
+            ownerCommands = `<span id="editCmd" photoId="${photo.Id}" ownerId="${photo.OwnerId}"> <i class="fa-solid fa-pencil dodgerblueCmd" ></i></span>
+            <span id="deleteCmd" photoId="${photo.Id}"><i class="fa-solid fa-trash dodgerblueCmd" ></i></span>`;
+        }
         $("#content").append(`
-        <div class="photosLayout" id="photosContainer">
-        <div class="photoTitleContainer">
-        <span class="photoTitle">${photo.Title}</span>
-    </div>
-    <div class="detailsCmd">
-        <img src="${photo.Owner.Avatar}" alt="" class="UserAvatarSmall cornerAvatar">
-        <img src="${photo.Image}" alt="unloadedPhoto">
-    </div>
-    <span class="photoCreationDate">${photo.Date}</span>
-        </div> 
+        <div class="photosLayout" id="photosContainer"></div> 
         `);
 
-
+        $("#photosContainer").append(`
+            <div class="photoLayout" photoId="${photo.Id}">
+                <div class="photoTitleContainer">
+                    <span class="photoTitle">${photo.Title}</span>
+                    ${ownerCommands}
+                </div>
+                <div class="detailsCmd">
+                    <img src="${photo.Owner.Avatar}" alt="" class="UserAvatarSmall cornerAvatar">
+                    <img src="${photo.Image}" alt="unloadedPhoto">
+                </div>
+                <span class="photoCreationDate">${new Date(photo.Date).toLocaleDateString('fr-FR', {weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'})}</span>
+            </div>
+        `);
     });
 }
 function renderVerify() {
