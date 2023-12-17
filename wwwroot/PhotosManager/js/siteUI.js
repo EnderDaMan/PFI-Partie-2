@@ -364,10 +364,10 @@ async function renderPhotosList() {
     let photos = await API.GetPhotos();
     let loggedUser = API.retrieveLoggedUser();
     let ownerCommands = "";
-    
+
     eraseContent();
     photos.data.forEach(photo => {
-        if(loggedUser.Id == photo.Owner.Id){
+        if (loggedUser.Id == photo.Owner.Id) {
             console.log(photo.Id);
             ownerCommands = `<span class="editCmd" photoId="${photo.Id}"> <i class="fa-solid fa-pencil dodgerblueCmd" ></i></span>
             <span class="deleteCmd" photoId="${photo.Id}"><i class="fa-solid fa-trash dodgerblueCmd" ></i></span>`;
@@ -382,24 +382,29 @@ async function renderPhotosList() {
                     <span class="photoTitle">${photo.Title}</span>
                     ${ownerCommands}
                 </div>
-                <div class="detailsCmd">
-                    <img src="${photo.Owner.Avatar}" alt="" class="UserAvatarSmall cornerAvatar">
-                    <img src="${photo.Image}" alt="unloadedPhoto">
+                <div style=" position: relative;" class="detailsCmd">
+                    <img style="position: absolute; top:10px; left: 10px" src="${photo.Owner.Avatar}" alt="" class="UserAvatarSmall cornerAvatar">
+                    <img style="width: 300px; height: 300px; object-fit: fill; border-radius: 20px;" src="${photo.Image}" alt="unloadedPhoto"/>
                 </div>
-                <span class="photoCreationDate">${new Date(photo.Date).toLocaleDateString('fr-FR', {weekday: 'long',
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric'})}</span>
+                <span class="photoCreationDate">${new Date(photo.Date).toLocaleDateString('fr-FR', {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: "2-digit",
+            hour: "numeric",
+            minute: "2-digit",
+            second: "2-digit"
+        })}</span>
             </div>
         `);
 
-        
+
     });
     initFormValidation();
-        $('.editCmd').on("click", function() {
-            let thisPhotoId = $(this).attr("photoId");
-            renderModifyPhoto(thisPhotoId);
-        });
+    $('.editCmd').on("click", function () {
+        let thisPhotoId = $(this).attr("photoId");
+        renderModifyPhoto(thisPhotoId);
+    });
 }
 function renderVerify() {
     eraseContent();
@@ -867,21 +872,20 @@ function renderAddPhoto() {
         credential.Date = new Date().getTime();
         credential.Image = credential.Photo;
 
-        if(credential.Shared == "on"){
+        if (credential.Shared == "on") {
             credential.Shared = true;
         }
-        else{
+        else {
             credential.Shared = false;
         }
         console.log(credential);
-        
+
         showWaitingGif();
         createPhoto(credential);
     });
 }
 
 function renderModifyPhoto(id) {
-
     let Photo = API.GetPhotosById(id);
     let loggedUser = API.retrieveLoggedUser();
     noTimeout();
