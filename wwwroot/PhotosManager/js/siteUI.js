@@ -369,10 +369,10 @@ async function renderPhotosList() {
     let photos = await API.GetPhotos();
     let loggedUser = API.retrieveLoggedUser();
     let ownerCommands = "";
-    
+
     eraseContent();
     photos.data.forEach(photo => {
-        if(loggedUser.Id == photo.Owner.Id){
+        if (loggedUser.Id == photo.Owner.Id) {
             console.log(photo.Id);
             ownerCommands = `<span class="editCmd" photoId="${photo.Id}"> <i class="fa-solid fa-pencil dodgerblueCmd" ></i></span>
             <span class="deleteCmd" photoId="${photo.Id}"><i class="fa-solid fa-trash dodgerblueCmd" ></i></span>`;
@@ -391,14 +391,19 @@ async function renderPhotosList() {
                     <img src="${photo.Owner.Avatar}" alt="" class="UserAvatarSmall cornerAvatar">
                     <img src="${photo.Image}" alt="unloadedPhoto" class="photoDetailsCmd" photoId="${photo.Id}">
                 </div>
-                <span class="photoCreationDate">${new Date(photo.Date).toLocaleDateString('fr-FR', {weekday: 'long',
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric'})}</span>
+                <span class="photoCreationDate">${new Date(photo.Date).toLocaleDateString('fr-FR', {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: "2-digit",
+            hour: "numeric",
+            minute: "2-digit",
+            second: "2-digit"
+        })}</span>
             </div>
         `);
 
-        
+
     });
     initFormValidation();
         $('.editCmd').on("click", function() {
@@ -950,10 +955,10 @@ function renderAddPhoto() {
         credential.Date = new Date().getTime();
         credential.Image = credential.Photo;
 
-        if(credential.Shared == "on"){
+        if (credential.Shared == "on") {
             credential.Shared = true;
         }
-        else{
+        else {
             credential.Shared = false;
         }
         
