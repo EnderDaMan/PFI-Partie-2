@@ -374,7 +374,6 @@ async function renderPhotosList() {
     photos.data.forEach(photo => {
         let sharedImage = "";
         if ((loggedUser.Id == photo.Owner.Id) || loggedUser.isAdmin) {
-            console.log(photo.Id);
             ownerCommands = `<span class="editCmd" photoId="${photo.Id}"> <i class="fa-solid fa-pencil dodgerblueCmd" ></i></span>
             <span class="deleteCmd" photoId="${photo.Id}"><i class="fa-solid fa-trash dodgerblueCmd" ></i></span>`;
         }
