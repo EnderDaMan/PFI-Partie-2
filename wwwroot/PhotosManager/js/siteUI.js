@@ -373,7 +373,6 @@ async function renderPhotosList() {
     eraseContent();
     photos.data.forEach(photo => {
         let sharedImage = "";
-
         if ((loggedUser.Id == photo.Owner.Id) || loggedUser.isAdmin) {
             console.log(photo.Id);
             ownerCommands = `<span class="editCmd" photoId="${photo.Id}"> <i class="fa-solid fa-pencil dodgerblueCmd" ></i></span>
@@ -439,7 +438,7 @@ function renderPhotoDetails(id){
                     <span>${data.Owner.Name}</span>
                 </div>
                 <span class="photoDetailsTitle">${data.Title}</span>
-                <img class="photoDetailsLargeImage" src="${data.Image}" alt="unloadedPhoto">
+                <img class="photoDetailsLargeImage" style="width: 350px; height: 350px;" src="${data.Image}" alt="unloadedPhoto"/>
                 <div>
                 <span class="photoDetailsCreationDate">${new Date(data.Date).toLocaleDateString('fr-FR', {weekday: 'long',
                     year: 'numeric',
