@@ -377,7 +377,7 @@ async function renderPhotosList() {
             ownerCommands = `<span class="editCmd" photoId="${photo.Id}"> <i class="fa-solid fa-pencil dodgerblueCmd" ></i></span>
             <span class="deleteCmd" photoId="${photo.Id}"><i class="fa-solid fa-trash dodgerblueCmd" ></i></span>`;
         }
-        if(photo.Shared){
+        if (photo.Shared) {
             sharedImage = '<img style="position: absolute; top:10px; left: 70px" src="images/shared.png" alt="" class="UserAvatarSmall cornerAvatar">';
         }
         $("#content").append(`
@@ -424,34 +424,40 @@ async function renderPhotosList() {
     })
 }
 
-function renderPhotoDetails(id){
+function renderPhotoDetails(id) {
     eraseContent();
     UpdateHeader("Détails", "details");
     $("#newPhotoCmd").hide();
     let Photo = API.GetPhotosById(id);
-    Photo.then( function (data) {
+    Photo.then(function (data) {
         $("#content").append(`
             <div>
+            <i class="fa-regular fa-thumb-up"></i>
+
                 <div class="photoDetailsOwner">
                     <img src="${data.Owner.Avatar}" alt="" class="UserAvatarSmall cornerAvatar">
                     <span>${data.Owner.Name}</span>
                 </div>
                 <span class="photoDetailsTitle">${data.Title}</span>
-                <img class="photoDetailsLargeImage" style="width: 350px; height: 350px;" src="${data.Image}" alt="unloadedPhoto"/>
-                <div>
-                <span class="photoDetailsCreationDate">${new Date(data.Date).toLocaleDateString('fr-FR', {weekday: 'long',
+                <img class="photoDetailsLargeImage" src="${data.Image}" alt="unloadedPhoto"/>
+                <div  class="photoTitleDetails">
+                <span class="photoDetailsCreationDate">${new Date(data.Date).toLocaleDateString('fr-FR', {
+                    weekday: 'long',
                     year: 'numeric',
                     month: 'long',
-                    day: 'numeric'})}</span><span>Likes</div>
-                    
+                    day: 'numeric'
+                })}</span>
+                <i class="fa-regular fa-thumbs-up"></i>
+                    <i class="fa-solid fa-thumbs-up"></i>
+                    </div>
                 </div>
-                <div>
+                <div class='photoDetailsDescription'>
                     <span>${data.Description}</span>
                 </div>
             </div>
         `);
     });
-    
+
 }
 
 function renderVerify() {
