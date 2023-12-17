@@ -259,6 +259,11 @@ async function createPhoto(credential) {
         renderPhotos();
     }
 }
+async function modifyPhoto(credential){
+    if(await API.UpdatePhoto(credential)){
+        renderPhotos();
+    }
+}
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// Views rendering
 function showWaitingGif() {
@@ -401,11 +406,50 @@ async function renderPhotosList() {
 
     });
     initFormValidation();
-    $('.editCmd').on("click", function () {
-        let thisPhotoId = $(this).attr("photoId");
-        renderModifyPhoto(thisPhotoId);
-    });
+        $('.editCmd').on("click", function() {
+            let thisPhotoId = $(this).attr("photoId");
+            renderModifyPhoto(thisPhotoId);
+        });
+        $('.photoDetailsCmd').on("click", function() {
+            let thisPhotoId = $(this).attr("photoId");
+            renderPhotoDetails(thisPhotoId);
+        })
+        $('.deleteCmd').on("click", function() {
+            let thisPhotoId = $(this).attr("photoId");
+            renderConfirmDeletePhoto(thisPhotoId);
+        })
 }
+
+function renderPhotoDetails(id){
+    eraseContent();
+    UpdateHeader("Détails", "details");
+    $("#newPhotoCmd").hide();
+    let Photo = API.GetPhotosById(id);
+    Photo.then( function (data) {
+        $("#content").append(`
+            <div>
+                <div class="photoDetailsOwner">
+                    <img src="${data.Owner.Avatar}" alt="" class="UserAvatarSmall cornerAvatar">
+                    <span>${data.Owner.Name}</span>
+                </div>
+                <span class="photoDetailsTitle">${data.Title}</span>
+                <img class="photoDetailsLargeImage" src="${data.Image}" alt="unloadedPhoto">
+                <div>
+                <span class="photoDetailsCreationDate">${new Date(data.Date).toLocaleDateString('fr-FR', {weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'})}</span><span>Likes</div>
+                    
+                </div>
+                <div>
+                    <span>${data.Description}</span>
+                </div>
+            </div>
+        `);
+    });
+    
+}
+
 function renderVerify() {
     eraseContent();
     UpdateHeader("Vérification", "verify");
@@ -748,6 +792,45 @@ function renderConfirmDeleteProfil() {
         $('#cancelDeleteProfilCmd').on('click', renderEditProfilForm);
     }
 }
+async function renderConfirmDeletePhoto(id){
+    timeout();
+    eraseContent();
+    UpdateHeader("Retrait de photo", "confirmDeletePhoto");
+    $("#newPhotoCmd").hide();
+    let loggedUser = API.retrieveLoggedUser();
+    let Photo = await API.GetPhotosById(id);
+    console.log(loggedUser == Photo.Owner.Id);
+    if(loggedUser && (loggedUser.Id == Photo.Owner.Id || loggedUser.isAdmin)){
+        $("#content").append(`
+            <div class="content loginForm">
+                <br>
+                
+                <div class="form">
+                 <h3> Voulez-vous vraiment effacer cette photo? </h3>
+                 <div> 
+                    <span class="photoTitle">${Photo.Title}</span>
+                    <img class="photoImage" src="${Photo.Image}" alt="unloadedPhoto" class="photoDetailsCmd" photoId="${Photo.Id}">
+                 </div>
+                    <button class="form-control btn-danger" id="deletePhotoCmd">Effacer la photo</button>
+                    <br>
+                    <button class="form-control btn-secondary" id="cancelDeletePhotoCmd">Annuler</button>
+                </div>
+            </div>
+        `);
+
+       
+    }
+    $("#deletePhotoCmd").on("click", deletePhoto(Photo.Id));
+    $("#cancelDeletePhotoCmd").on("click", renderPhotos);
+
+}
+
+async function deletePhoto(id){
+    showWaitingGif();
+    if (await API.DeletePhoto(id)) {
+        renderPhotos();
+    }
+}
 function renderExpiredSession() {
     noTimeout();
     loginMessage = "Votre session est expirée. Veuillez vous reconnecter.";
@@ -878,79 +961,91 @@ function renderAddPhoto() {
         else {
             credential.Shared = false;
         }
-        console.log(credential);
-
+        
         showWaitingGif();
         createPhoto(credential);
     });
 }
 
-function renderModifyPhoto(id) {
-    let Photo = API.GetPhotosById(id);
-    let loggedUser = API.retrieveLoggedUser();
+async function renderModifyPhoto(id) {
     noTimeout();
     eraseContent();
     UpdateHeader("Modification de photo", "Modify");
-    $("#newPhotoCmd").hide();
-    $("#content").append(`
-    <br/>
-    <form class="form" id="modifyPhotoForm"'>
-        <input type="hidden" name="Id" id="Id" value="${loggedUser.Id}"/>
-        <fieldset>
-            <legend>Informations</legend>
-            <input  type="text" 
-                    class="form-control Alpha" 
-                    name="Title" 
-                    id="Title"
-                    placeholder="Titre" 
-                    required 
-                    RequireMessage = 'Veuillez entrer le titre de la publication'
-                    InvalidMessage = 'Titre invalide'
-                    value="${Photo.Title}" >
+    let Photo = await API.GetPhotosById(id);
+        console.log(Photo);
+        $("#newPhotoCmd").hide();
+        $("#content").append(`
+        <br/>
+        <form class="form" id="modifyPhotoForm"'>
+            <input type="hidden" name="Id" id="Id" value="${Photo.Id}"/>
+            <fieldset>
+                <legend>Informations</legend>
+                <input  type="text" 
+                        class="form-control Alpha" 
+                        name="Title" 
+                        id="Title"
+                        placeholder="Titre" 
+                        required 
+                        RequireMessage = 'Veuillez entrer le titre de la publication'
+                        InvalidMessage = 'Titre invalide'
+                        value="${Photo.Title}" >
 
-            <textarea class="form-control Alpha" 
-                    name="Description" 
-                    id="Description"
-                    placeholder="Description" 
-                    required 
-                    RequireMessage = 'Veuillez entrer la description de la publication'
-                    InvalidMessage = 'Description invalide'
-                    value="${Photo.Description}"
-                    style="height: 100px" ></textarea>
+                <textarea class="form-control Alpha" 
+                        name="Description" 
+                        id="Description"
+                        placeholder="Description" 
+                        required 
+                        RequireMessage = 'Veuillez entrer la description de la publication'
+                        InvalidMessage = 'Description invalide'
+                        value="${Photo.Description}"
+                        style="height: 100px" ></textarea>
 
-            <label> 
-            <input  type="checkbox" 
-                    name="Shared" 
-                    id="Shared" 
-                    value="${Photo.Shared}" 
-                    onclick = changeShared()>
-                    Partager la publication
-                    </label>
-        </fieldset>
-        <fieldset>
-            <legend>Image</legend>
-            <div class='imageUploader' 
-                        newImage='true' 
-                        controlId='Photo' 
-                        imageSrc='${Photo.Image}'>
+                <label> 
+                <input  type="checkbox" 
+                        name="Shared" 
+                        id="Shared" 
+                        value="${Photo.Shared}" 
+                        onclick = changeShared()>
+                        Partager la publication
+                        </label>
+            </fieldset>
+            <fieldset>
+                <legend>Image</legend>
+                <div class='imageUploader' 
+                            newImage='true' 
+                            controlId='Photo' 
+                            imageSrc='${Photo.Image}'>
+            </div>
+            </fieldset>
+
+            <input type='submit' name='submit' id='savePost' value="Enregistrer" class="form-control btn-primary">
+            
+        </form>
+        <div class="cancel">
+            <button class="form-control btn-secondary" id="abortAddPhotoCmd">Annuler</button>
         </div>
-        </fieldset>
+        `);
 
-        <input type='submit' name='submit' id='savePost' value="Enregistrer" class="form-control btn-primary">
-        
-    </form>
-    <div class="cancel">
-        <button class="form-control btn-secondary" id="abortAddPhotoCmd">Annuler</button>
-    </div>
-    `);
-    initFormValidation(); // important do to after all html injection!
-    initImageUploaders();
-    $('#abortAddPhotoCmd').on('click', renderPhotos);
-    $('#modifyPhotoForm').on("submit", function (event) {
-        let credential = getFormData($('#modifyPhotoForm'));
-        credential['Shared'] = shared;
-        console.log(credential);
-    });
+        initFormValidation(); // important do to after all html injection!
+        initImageUploaders();
+        $('#abortAddPhotoCmd').on('click', renderPhotos);
+        $('#modifyPhotoForm').on("submit", function (event) {
+            event.preventDefault();
+            let credential = getFormData($('#modifyPhotoForm'));
+            let loggedUser = API.retrieveLoggedUser();
+            credential.OwnerId = loggedUser.Id;
+            credential.Date = new Date().getTime();
+            credential.Image = credential.Photo;
+
+            if(credential.Shared == "on"){
+                credential.Shared = true;
+            }
+            else{
+                credential.Shared = false;
+            }
+            showWaitingGif();
+            modifyPhoto(credential);
+    }); 
 }
 
 function changeShared() {
