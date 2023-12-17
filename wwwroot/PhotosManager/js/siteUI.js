@@ -361,10 +361,24 @@ async function renderPhotos() {
     }
 }
 async function renderPhotosList() {
-    let photos = API.GetPhotos();
-    
+    let photos = await API.GetPhotos();
     eraseContent();
-    $("#content").append("<h2> En contruction </h2>");
+    photos.data.forEach(photo => {
+        $("#content").append(`
+        <div class="photosLayout" id="photosContainer">
+        <div class="photoTitleContainer">
+        <span class="photoTitle">${photo.Title}</span>
+    </div>
+    <div class="detailsCmd">
+        <img src="${photo.Owner.Avatar}" alt="" class="UserAvatarSmall cornerAvatar">
+        <img src="${photo.Image}" alt="unloadedPhoto">
+    </div>
+    <span class="photoCreationDate">${photo.Date}</span>
+        </div> 
+        `);
+
+
+    });
 }
 function renderVerify() {
     eraseContent();
@@ -825,9 +839,21 @@ function renderAddPhoto() {
     $('#abortAddPhotoCmd').on('click', renderPhotos);
     $('#addPhotoForm').on("submit", function (event) {
         let credential = getFormData($('#addPhotoForm'));
-        credential['Shared'] = shared;
-        console.log(credential);
+
         event.preventDefault();
+        let loggedUser = API.retrieveLoggedUser();
+        credential.OwnerId = loggedUser.Id;
+        credential.Date = new Date().getTime();
+        credential.Image = credential.Photo;
+
+        if(credential.Shared == "on"){
+            credential.Shared = true;
+        }
+        else{
+            credential.Shared = false;
+        }
+        console.log(credential);
+        
         showWaitingGif();
         createPhoto(credential);
     });
