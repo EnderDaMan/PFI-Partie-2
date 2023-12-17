@@ -259,8 +259,8 @@ async function createPhoto(credential) {
         renderPhotos();
     }
 }
-async function modifyPhoto(credential){
-    if(await API.UpdatePhoto(credential)){
+async function modifyPhoto(credential) {
+    if (await API.UpdatePhoto(credential)) {
         renderPhotos();
     }
 }
@@ -406,26 +406,26 @@ async function renderPhotosList() {
 
     });
     initFormValidation();
-        $('.editCmd').on("click", function() {
-            let thisPhotoId = $(this).attr("photoId");
-            renderModifyPhoto(thisPhotoId);
-        });
-        $('.photoDetailsCmd').on("click", function() {
-            let thisPhotoId = $(this).attr("photoId");
-            renderPhotoDetails(thisPhotoId);
-        })
-        $('.deleteCmd').on("click", function() {
-            let thisPhotoId = $(this).attr("photoId");
-            renderConfirmDeletePhoto(thisPhotoId);
-        })
+    $('.editCmd').on("click", function () {
+        let thisPhotoId = $(this).attr("photoId");
+        renderModifyPhoto(thisPhotoId);
+    });
+    $('.photoDetailsCmd').on("click", function () {
+        let thisPhotoId = $(this).attr("photoId");
+        renderPhotoDetails(thisPhotoId);
+    })
+    $('.deleteCmd').on("click", function () {
+        let thisPhotoId = $(this).attr("photoId");
+        renderConfirmDeletePhoto(thisPhotoId);
+    })
 }
 
-function renderPhotoDetails(id){
+function renderPhotoDetails(id) {
     eraseContent();
     UpdateHeader("Détails", "details");
     $("#newPhotoCmd").hide();
     let Photo = API.GetPhotosById(id);
-    Photo.then( function (data) {
+    Photo.then(function (data) {
         $("#content").append(`
             <div>
                 <div class="photoDetailsOwner">
@@ -435,10 +435,12 @@ function renderPhotoDetails(id){
                 <span class="photoDetailsTitle">${data.Title}</span>
                 <img class="photoDetailsLargeImage" src="${data.Image}" alt="unloadedPhoto">
                 <div>
-                <span class="photoDetailsCreationDate">${new Date(data.Date).toLocaleDateString('fr-FR', {weekday: 'long',
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric'})}</span><span>Likes</div>
+                <span class="photoDetailsCreationDate">${new Date(data.Date).toLocaleDateString('fr-FR', {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        })}</span><span>Likes</div>
                     
                 </div>
                 <div>
@@ -447,7 +449,7 @@ function renderPhotoDetails(id){
             </div>
         `);
     });
-    
+
 }
 
 function renderVerify() {
@@ -792,7 +794,7 @@ function renderConfirmDeleteProfil() {
         $('#cancelDeleteProfilCmd').on('click', renderEditProfilForm);
     }
 }
-async function renderConfirmDeletePhoto(id){
+async function renderConfirmDeletePhoto(id) {
     timeout();
     eraseContent();
     UpdateHeader("Retrait de photo", "confirmDeletePhoto");
@@ -800,7 +802,7 @@ async function renderConfirmDeletePhoto(id){
     let loggedUser = API.retrieveLoggedUser();
     let Photo = await API.GetPhotosById(id);
     console.log(loggedUser == Photo.Owner.Id);
-    if(loggedUser && (loggedUser.Id == Photo.Owner.Id || loggedUser.isAdmin)){
+    if (loggedUser && (loggedUser.Id == Photo.Owner.Id || loggedUser.isAdmin)) {
         $("#content").append(`
             <div class="content loginForm">
                 <br>
@@ -818,14 +820,14 @@ async function renderConfirmDeletePhoto(id){
             </div>
         `);
 
-       
+
     }
     $("#deletePhotoCmd").on("click", deletePhoto(Photo.Id));
     $("#cancelDeletePhotoCmd").on("click", renderPhotos);
 
 }
 
-async function deletePhoto(id){
+async function deletePhoto(id) {
     showWaitingGif();
     if (await API.DeletePhoto(id)) {
         renderPhotos();
@@ -921,8 +923,7 @@ function renderAddPhoto() {
             <input  type="checkbox" 
                     name="Shared" 
                     id="Shared" 
-                    value="${shared}" 
-                    onclick = changeShared()>
+                    value="${shared}">
                     Partager la publication
                     </label>
         </fieldset>
@@ -955,13 +956,13 @@ function renderAddPhoto() {
         credential.Date = new Date().getTime();
         credential.Image = credential.Photo;
 
-        if (credential.Shared == "on") {
+        if (document.getElementById("Shared").checked) {
             credential.Shared = true;
         }
         else {
             credential.Shared = false;
         }
-        
+
         showWaitingGif();
         createPhoto(credential);
     });
@@ -972,9 +973,9 @@ async function renderModifyPhoto(id) {
     eraseContent();
     UpdateHeader("Modification de photo", "Modify");
     let Photo = await API.GetPhotosById(id);
-        console.log(Photo);
-        $("#newPhotoCmd").hide();
-        $("#content").append(`
+    console.log(Photo);
+    $("#newPhotoCmd").hide();
+    $("#content").append(`
         <br/>
         <form class="form" id="modifyPhotoForm"'>
             <input type="hidden" name="Id" id="Id" value="${Photo.Id}"/>
@@ -1004,8 +1005,7 @@ async function renderModifyPhoto(id) {
                 <input  type="checkbox" 
                         name="Shared" 
                         id="Shared" 
-                        value="${Photo.Shared}" 
-                        onclick = changeShared()>
+                        value="${Photo.Shared}">
                         Partager la publication
                         </label>
             </fieldset>
@@ -1025,36 +1025,34 @@ async function renderModifyPhoto(id) {
             <button class="form-control btn-secondary" id="abortAddPhotoCmd">Annuler</button>
         </div>
         `);
-
-        initFormValidation(); // important do to after all html injection!
-        initImageUploaders();
-        $('#abortAddPhotoCmd').on('click', renderPhotos);
-        $('#modifyPhotoForm').on("submit", function (event) {
-            event.preventDefault();
-            let credential = getFormData($('#modifyPhotoForm'));
-            let loggedUser = API.retrieveLoggedUser();
-            credential.OwnerId = loggedUser.Id;
-            credential.Date = new Date().getTime();
-            credential.Image = credential.Photo;
-
-            if(credential.Shared == "on"){
-                credential.Shared = true;
-            }
-            else{
-                credential.Shared = false;
-            }
-            showWaitingGif();
-            modifyPhoto(credential);
-    }); 
-}
-
-function changeShared() {
-    if (shared == 0) {
-        shared = 1;
+    document.getElementById("Description").value = Photo.Description;
+    if (Photo.Shared) {
+        document.getElementById("Shared").checked = true;
     }
     else {
-        shared = 0;
+        document.getElementById("Shared").checked = false;
     }
+
+    initFormValidation(); // important do to after all html injection!
+    initImageUploaders();
+    $('#abortAddPhotoCmd').on('click', renderPhotos);
+    $('#modifyPhotoForm').on("submit", function (event) {
+        event.preventDefault();
+        let credential = getFormData($('#modifyPhotoForm'));
+        let loggedUser = API.retrieveLoggedUser();
+        credential.OwnerId = loggedUser.Id;
+        credential.Date = new Date().getTime();
+        credential.Image = credential.Photo;
+
+        if (document.getElementById("Shared").checked) {
+            credential.Shared = true;
+        }
+        else {
+            credential.Shared = false;
+        }
+        showWaitingGif();
+        modifyPhoto(credential);
+    });
 }
 
 function getFormData($form) {
