@@ -368,8 +368,9 @@ async function renderPhotosList() {
     eraseContent();
     photos.data.forEach(photo => {
         if(loggedUser.Id == photo.Owner.Id){
-            ownerCommands = `<span id="editCmd" photoId="${photo.Id}" ownerId="${photo.OwnerId}"> <i class="fa-solid fa-pencil dodgerblueCmd" ></i></span>
-            <span id="deleteCmd" photoId="${photo.Id}"><i class="fa-solid fa-trash dodgerblueCmd" ></i></span>`;
+            console.log(photo.Id);
+            ownerCommands = `<span class="editCmd" photoId="${photo.Id}"> <i class="fa-solid fa-pencil dodgerblueCmd" ></i></span>
+            <span class="deleteCmd" photoId="${photo.Id}"><i class="fa-solid fa-trash dodgerblueCmd" ></i></span>`;
         }
         $("#content").append(`
         <div class="photosLayout" id="photosContainer"></div> 
@@ -391,7 +392,14 @@ async function renderPhotosList() {
                 day: 'numeric'})}</span>
             </div>
         `);
+
+        
     });
+    initFormValidation();
+        $('.editCmd').on("click", function() {
+            let thisPhotoId = $(this).attr("photoId");
+            renderModifyPhoto(thisPhotoId);
+        });
 }
 function renderVerify() {
     eraseContent();
@@ -875,7 +883,7 @@ function renderAddPhoto() {
 function renderModifyPhoto(id) {
 
     let Photo = API.GetPhotosById(id);
-
+    let loggedUser = API.retrieveLoggedUser();
     noTimeout();
     eraseContent();
     UpdateHeader("Modification de photo", "Modify");
@@ -910,7 +918,7 @@ function renderModifyPhoto(id) {
             <input  type="checkbox" 
                     name="Shared" 
                     id="Shared" 
-                    value="${shared}" 
+                    value="${Photo.Shared}" 
                     onclick = changeShared()>
                     Partager la publication
                     </label>
