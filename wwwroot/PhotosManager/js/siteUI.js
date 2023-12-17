@@ -391,7 +391,7 @@ async function renderPhotosList() {
                 <div style=" position: relative;" class="detailsCmd">
                     <img style="position: absolute; top:10px; left: 10px" src="${photo.Owner.Avatar}" alt="" class="UserAvatarSmall cornerAvatar">
                     ${sharedImage}
-                    <img style="width: 350px; height: 350px; object-fit: fill; border-radius: 20px;" src="${photo.Image}" alt="unloadedPhoto"/>
+                    <img class="photoDetailsCmd" photoId="${photo.Id}"style="width: 350px; height: 350px; object-fit: fill; border-radius: 20px;" src="${photo.Image}" alt="unloadedPhoto"/>
                 </div>
                 <span class="photoCreationDate">${new Date(photo.Date).toLocaleDateString('fr-FR', {
             weekday: 'long',
@@ -420,12 +420,12 @@ async function renderPhotosList() {
     })
 }
 
-function renderPhotoDetails(id) {
+function renderPhotoDetails(id){
     eraseContent();
     UpdateHeader("Détails", "details");
     $("#newPhotoCmd").hide();
     let Photo = API.GetPhotosById(id);
-    Photo.then(function (data) {
+    Photo.then( function (data) {
         $("#content").append(`
             <div>
                 <div class="photoDetailsOwner">
@@ -435,12 +435,10 @@ function renderPhotoDetails(id) {
                 <span class="photoDetailsTitle">${data.Title}</span>
                 <img class="photoDetailsLargeImage" src="${data.Image}" alt="unloadedPhoto">
                 <div>
-                <span class="photoDetailsCreationDate">${new Date(data.Date).toLocaleDateString('fr-FR', {
-            weekday: 'long',
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric'
-        })}</span><span>Likes</div>
+                <span class="photoDetailsCreationDate">${new Date(data.Date).toLocaleDateString('fr-FR', {weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'})}</span><span>Likes</div>
                     
                 </div>
                 <div>
@@ -449,7 +447,7 @@ function renderPhotoDetails(id) {
             </div>
         `);
     });
-
+    
 }
 
 function renderVerify() {
@@ -801,8 +799,8 @@ async function renderConfirmDeletePhoto(id) {
     $("#newPhotoCmd").hide();
     let loggedUser = API.retrieveLoggedUser();
     let Photo = await API.GetPhotosById(id);
-    console.log(loggedUser == Photo.Owner.Id);
-    if (loggedUser && (loggedUser.Id == Photo.Owner.Id || loggedUser.isAdmin)) {
+    console.log(loggedUser.Id == Photo.OwnerId);
+    if (loggedUser && (loggedUser.Id == Photo.OwnerId || loggedUser.isAdmin)) {
         $("#content").append(`
             <div class="content loginForm">
                 <br>
