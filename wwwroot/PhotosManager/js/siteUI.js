@@ -372,7 +372,7 @@ async function renderPhotosList() {
 
     eraseContent();
     photos.data.forEach(photo => {
-        if (loggedUser.Id == photo.Owner.Id) {
+        if ((loggedUser.Id == photo.Owner.Id) || loggedUser.isAdmin) {
             console.log(photo.Id);
             ownerCommands = `<span class="editCmd" photoId="${photo.Id}"> <i class="fa-solid fa-pencil dodgerblueCmd" ></i></span>
             <span class="deleteCmd" photoId="${photo.Id}"><i class="fa-solid fa-trash dodgerblueCmd" ></i></span>`;
