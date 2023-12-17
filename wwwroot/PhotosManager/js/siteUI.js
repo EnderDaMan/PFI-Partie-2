@@ -425,6 +425,8 @@ async function renderPhotosList() {
 }
 
 function renderPhotoDetails(id) {
+    let likeImage = '<i class="fa-regular fa-thumbs-up"></i>';
+    //<i class="fa-solid fa-thumbs-up"></i>
     eraseContent();
     UpdateHeader("Détails", "details");
     $("#newPhotoCmd").hide();
@@ -440,16 +442,14 @@ function renderPhotoDetails(id) {
                 </div>
                 <span class="photoDetailsTitle">${data.Title}</span>
                 <img class="photoDetailsLargeImage" src="${data.Image}" alt="unloadedPhoto"/>
-                <div  class="photoTitleDetails">
-                <span class="photoDetailsCreationDate">${new Date(data.Date).toLocaleDateString('fr-FR', {
-                    weekday: 'long',
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric'
-                })}</span>
-                <i class="fa-regular fa-thumbs-up"></i>
-                    <i class="fa-solid fa-thumbs-up"></i>
-                    </div>
+                <div class="photoTitleDetails">
+                    <span class="photoDetailsCreationDate">${new Date(data.Date).toLocaleDateString('fr-FR', {
+                        weekday: 'long',
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                    })}</span>
+                    <span id="Like">${likeImage}</span>
                 </div>
                 <div class='photoDetailsDescription'>
                     <span>${data.Description}</span>
@@ -457,7 +457,7 @@ function renderPhotoDetails(id) {
             </div>
         `);
     });
-
+    $('#Like').on('click', CreateLike());
 }
 
 function renderVerify() {
