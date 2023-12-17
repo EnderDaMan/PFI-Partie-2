@@ -369,18 +369,17 @@ async function renderPhotosList() {
     let photos = await API.GetPhotos();
     let loggedUser = API.retrieveLoggedUser();
     let ownerCommands = "";
-    let sharedImage = "";
 
     eraseContent();
     photos.data.forEach(photo => {
-        if (loggedUser.Id == photo.Owner.Id /*|| (loggedUser.Authorizations[readAccess] == 2 && loggedUser.Authorizations[writeAccess] ==2)*/) {
+        if ((loggedUser.Id == photo.Owner.Id) || loggedUser.isAdmin) {
+            console.log(photo.Id);
             ownerCommands = `<span class="editCmd" photoId="${photo.Id}"> <i class="fa-solid fa-pencil dodgerblueCmd" ></i></span>
             <span class="deleteCmd" photoId="${photo.Id}"><i class="fa-solid fa-trash dodgerblueCmd" ></i></span>`;
         }
-        /*if(photo.Shared)
-        {
-            sharedImage = '<img id="shared" style="position: absolute; top:10px; left: 70px" src="images/shared.png" alt="" class="UserAvatarSmall cornerAvatar"></img>';
-        }*/
+        $("#content").append(`
+        <div class="photosLayout" id="photosContainer"></div> 
+        `);
 
         $("#photosContainer").append(`
             <div class="photoLayout" photoId="${photo.Id}">
@@ -390,7 +389,7 @@ async function renderPhotosList() {
                 </div>
                 <div style=" position: relative;" class="detailsCmd">
                     <img style="position: absolute; top:10px; left: 10px" src="${photo.Owner.Avatar}" alt="" class="UserAvatarSmall cornerAvatar">
-                    ${sharedImage}
+                    <img style="position: absolute; top:10px; left: 70px" src="images/shared.png" alt="" class="UserAvatarSmall cornerAvatar">
                     <img class="photoDetailsCmd" photoId="${photo.Id}"style="width: 350px; height: 350px; object-fit: fill; border-radius: 20px;" src="${photo.Image}" alt="unloadedPhoto"/>
                 </div>
                 <span class="photoCreationDate">${new Date(photo.Date).toLocaleDateString('fr-FR', {
@@ -404,6 +403,8 @@ async function renderPhotosList() {
         })}</span>
             </div>
         `);
+
+
     });
     initFormValidation();
     $('.editCmd').on("click", function () {
