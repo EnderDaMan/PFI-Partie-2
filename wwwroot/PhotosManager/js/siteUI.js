@@ -438,7 +438,7 @@ async function renderPhotos() {
     }
 }
 async function renderPhotosList() { 
-    let likeImage = '<i class="fa-regular fa-thumbs-up"></i>';
+    let notlikedImage = '<i class="fa-regular fa-thumbs-up"></i>';
     let likedImage = '<i class="fa fa-thumb-up"></i>';
     let photos = await API.GetPhotos();
     let loggedUser = API.retrieveLoggedUser();
@@ -479,7 +479,9 @@ async function renderPhotosList() {
         }
     eraseContent();
     sortedData.forEach(photo => {
+        likeCmd = "likeCmd" + loggedUser.Id;
         let likes = GetLikes(photo.Id);
+        let likeImage = notlikedImage;
         if(!likes){
             likes = 0;
         }
@@ -517,12 +519,19 @@ async function renderPhotosList() {
             second: "2-digit"
         })}</span>
         <span>${likes}</span>
-                    <span id="likeCmd">${likeImage}</span></div>
+                    <span id="${likeCmd}">${likeImage}</span></div>
         </div>
             </div>
         `);
-
-
+        $('#likeCmd').on('click', async function(){
+            if(likeImage == notlikedImage){
+                likeImage = likedImage;
+            }
+            else {
+                likeImage = notlikedImage;
+            }
+            await API.CreateLike(Photo.id, loggedUser.id, true);
+        })
     });
     initFormValidation();
     $('.editCmd').on("click", function () {
