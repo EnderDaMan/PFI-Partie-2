@@ -264,6 +264,12 @@ async function modifyPhoto(credential) {
         renderPhotos();
     }
 }
+async function CreateLike(data){
+    console.log(1);
+    if(await API.CreateLike(data)){
+        console.log("ok");
+    }
+}
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// Views rendering
 function showWaitingGif() {
@@ -449,7 +455,7 @@ function renderPhotoDetails(id) {
                         month: 'long',
                         day: 'numeric'
                     })}</span>
-                    <span id="Like">${likeImage}</span>
+                    <span onclick="CreateLike(${Photo})">${likeImage}</span></div>
                 </div>
                 <div class='photoDetailsDescription'>
                     <span>${data.Description}</span>
@@ -457,7 +463,6 @@ function renderPhotoDetails(id) {
             </div>
         `);
     });
-    $('#Like').on('click', CreateLike());
 }
 
 function renderVerify() {
