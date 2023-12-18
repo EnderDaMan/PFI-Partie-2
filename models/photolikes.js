@@ -1,6 +1,6 @@
 import Model from './model.js';
 
-export default class User extends Model {
+export default class Photolikes extends Model {
     constructor()
     {
         super();
