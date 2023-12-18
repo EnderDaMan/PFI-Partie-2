@@ -463,7 +463,7 @@ async function renderPhotosList() {
 
             }
             if(sortByOwners){
-
+                photos.data.sort();
             }
             if(sortByMyPhotos){
 
