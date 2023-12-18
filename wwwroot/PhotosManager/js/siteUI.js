@@ -329,14 +329,53 @@ async function modifyPhoto(credential) {
         renderPhotos();
     }
 }
-async function CreateLike(photoId, userId){
-    if(await API.CreateLike(phtoId, userId)){
-        console.log("ok");
-    }
+async function CreateLike(photoId, userId, alreadyLiked = false){
+    let photo = await API.GetPhotosById(photoId);
+    let photoLikes = await API.GetPhotoLikes(photoId);
+
+    API.LikePhoto(photoId, userId).then(response => {
+        API.GetPhotoLikes(photoId).then(updatedLikes => {
+            photoLikes = updatedLikes;
+        });
+
+        console.log(response);
+
+        let liked = photoLikes.some(like => like.UserId === API.retrieveLoggedUser().Id);
+        let thumbsUpIconClass = liked ? "fa" : "fa-regular";
+        let likeCounter = photoLikes.length;
+
+
+        let hasFaClass = $(`#${photo.Id}-Likes i`).hasClass('fa');
+        let hasFaRegularClass = $(`#${photo.Id}-Likes i`).hasClass('fa-regular');
+
+        if (!hasFaClass) {
+            thumbsUpIconClass = "fa"
+
+            if (!alreadyLiked)
+                likeCounter++;
+        } else {
+            thumbsUpIconClass = "fa-regular"
+            if (likeCounter > 0)
+                likeCounter--;
+        }
+
+        const uniqueUserNames = [...new Set(photoLikes.map(like => like.UserName))];
+        const displayedUserNames = uniqueUserNames.slice(0, 10);
+
+        $(`#${photo.Id}-Likes`).html(`${likeCounter} <i class="cmdIcon ${thumbsUpIconClass} fa-thumbs-up fa-2x" title="${displayedUserNames}"></i>`);
+
+        $(`#${photo.Id}-Likes i`).on('click', function() {
+            likePhoto(photo.Id, API.retrieveLoggedUser().Id, alreadyLiked);
+        });
+    });
 }
 async function GetLikes(data){
-    return await API.GetLikeByPhotoId(data);
+    let likes = API.GetLikeByPhotoId(data);
+    likes.then(result =>{
+        return result;
+    })
 }
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// Views rendering
 function showWaitingGif() {
@@ -569,7 +608,7 @@ function renderPhotoDetails(id) {
         `);
 
         $('#likeCmd').on('click', async function(){
-            await API.CreateLike(Photo.id, loggedUser.id);
+            await API.CreateLike(Photo.id, loggedUser.id, true);
         })
     });
 
