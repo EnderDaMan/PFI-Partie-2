@@ -329,11 +329,13 @@ async function modifyPhoto(credential) {
         renderPhotos();
     }
 }
-async function CreateLike(data){
-    console.log(1);
-    if(await API.CreateLike(data)){
+async function CreateLike(photoId, userId){
+    if(await API.CreateLike(phtoId, userId)){
         console.log("ok");
     }
+}
+async function GetLikes(data){
+    return await API.GetLikeByPhotoId(data);
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// Views rendering
@@ -530,6 +532,7 @@ async function renderPhotosList() {
 }
 
 function renderPhotoDetails(id) {
+    let loggedUser = API.retrieveLoggedUser();
     let likeImage = '<i class="fa-regular fa-thumbs-up"></i>';
     let likedImage = '<i class="fa fa-thumb-up"></i>';
     //<i class="fa-solid fa-thumbs-up"></i>
@@ -538,8 +541,7 @@ function renderPhotoDetails(id) {
     $("#newPhotoCmd").hide();
     let Photo = API.GetPhotosById(id);
     Photo.then(function (data) {
-        let like = API.GetLikeByPhotoId(data.Id);
-        console.log(like);
+        let likes = GetLikes(Photo.Id);
         $("#content").append(`
             <div>
             <i class="fa-regular fa-thumb-up"></i>
@@ -557,6 +559,7 @@ function renderPhotoDetails(id) {
                         month: 'long',
                         day: 'numeric'
                     })}</span>
+                    <span>${likes}</span>
                     <span id="likeCmd">${likeImage}</span></div>
                 </div>
                 <div class='photoDetailsDescription'>
@@ -566,7 +569,7 @@ function renderPhotoDetails(id) {
         `);
 
         $('#likeCmd').on('click', async function(){
-            await API.CreateLike(data);
+            await API.CreateLike(Photo.id, loggedUser.id);
         })
     });
 
