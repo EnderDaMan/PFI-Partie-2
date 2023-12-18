@@ -20,6 +20,12 @@ let offset = 0;
 
 let shared = 0;
 
+let sorted = false;
+let sortByDate = false;
+let sortByLikes = false;
+let sortByOwners = false;
+let sortByMyPhotos = false;
+
 Init_UI();
 function Init_UI() {
     getViewPortPhotosRanges();
@@ -68,7 +74,42 @@ function attachCmd() {
     $('#loginCmd').on('click', renderLoginForm);
     $('#logoutCmd').on('click', logout);
     $('#listPhotosCmd').on('click', renderPhotos);
-    $('#listPhotosMenuCmd').on('click', renderPhotos);
+    $('#listPhotosMenuCmd').on('click', function(){
+        sorted = false;
+        renderPhotos();
+    });
+    $('#sortByDateCmd').on('click', function(){
+        sorted = true;
+        sortByDate = true;
+        sortByLikes = false;
+        sortByOwners = false;
+        sortByMyPhotos = false;
+        renderPhotos();
+    });
+    $('#sortByOwnersCmd').on('click', function(){
+        sorted = true;
+        sortByDate = false;
+        sortByLikes = false;
+        sortByOwners = true;
+        sortByMyPhotos = false;
+        renderPhotos();
+    });
+    $('#sortByLikesCmd').on('click', function(){
+        sorted = true;
+        sortByDate = false;
+        sortByLikes = true;
+        sortByOwners = false;
+        sortByMyPhotos = false;
+        renderPhotos();
+    });
+    $('#ownerOnlyCmd').on('click', function(){
+        sorted = true;
+        sortByDate = true;
+        sortByLikes = false;
+        sortByOwners = false;
+        sortByMyPhotos = false;
+        renderPhotos();
+    });
     $('#editProfilMenuCmd').on('click', renderEditProfilForm);
     $('#renderManageUsersMenuCmd').on('click', renderManageUsers);
     $('#editProfilCmd').on('click', renderEditProfilForm);
@@ -98,6 +139,33 @@ function loggedUserMenu() {
             <span class="dropdown-item" id="listPhotosMenuCmd">
                 <i class="menuIcon fa fa-image mx-2"></i> Liste des photos
             </span>
+            <div class="dropdown-divider"></div>
+            <span class="dropdown-item" id="sortByDateCmd">
+            <i class="menuIcon fa fa-check mx-2"></i>
+            <i class="menuIcon fa fa-calendar mx-2"></i>
+            Photos par date de création
+            </span>
+            <span class="dropdown-item" id="sortByOwnersCmd">
+            <i class="menuIcon fa fa-fw mx-2"></i>
+            <i class="menuIcon fa fa-users mx-2"></i>
+            Photos par créateur
+            </span>
+            <span class="dropdown-item" id="sortByLikesCmd">
+            <i class="menuIcon fa fa-fw mx-2"></i>
+            <i class="menuIcon fa fa-user mx-2"></i>
+            Photos les plus aiméés
+            </span>
+            <span class="dropdown-item" id="ownerOnlyCmd">
+            <i class="menuIcon fa fa-fw mx-2"></i>
+            <i class="menuIcon fa fa-user mx-2"></i>
+            Mes photos
+            </span>
+            <div class="dropdown-divider"></div>
+            <span class="dropdown-item" id="aboutCmd">
+            <i class="menuIcon fa fa-info-circle mx-2"></i>
+            À propos...
+            </span>
+
         `;
     }
     else
@@ -376,8 +444,34 @@ async function renderPhotosList() {
     let loggedUser = API.retrieveLoggedUser();
     let ownerCommands = "";
 
+    let sortBy;
+    /*
+    sorted = true;
+        sortByDate = false;
+        sortByLikes = false;
+        sortByOwners = true;
+        sortByMyPhotos = false;
+    */
+        if(sorted){
+            if(sortByDate){
+                sortBy = (a, b) => {
+                    return b.Date - a.Date;
+                }
+                photos.data.sort(sortBy);
+            }
+            if(sortByLikes){
+
+            }
+            if(sortByOwners){
+
+            }
+            if(sortByMyPhotos){
+
+            }
+        }
     eraseContent();
     photos.data.forEach(photo => {
+       
         let sharedImage = "";
         if ((loggedUser.Id == photo.Owner.Id) || loggedUser.isAdmin) {
             ownerCommands = `<span class="editCmd" photoId="${photo.Id}"> <i class="fa-solid fa-pencil dodgerblueCmd" ></i></span>
