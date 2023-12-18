@@ -127,6 +127,8 @@ function loggedUserMenu() {
             </span>
             <div class="dropdown-divider"></div>
         `;
+        let checkMarkHtml = '<i class="menuIcon fa fa-check mx-2"></i>';
+        let noCheckMarkHtml = '<i class="menuIcon fa fa-fw mx-2"></i>';
         return `
             ${loggedUser.isAdmin ? manageUserMenu : ""}
             <span class="dropdown-item" id="logoutCmd">
@@ -141,29 +143,24 @@ function loggedUserMenu() {
             </span>
             <div class="dropdown-divider"></div>
             <span class="dropdown-item" id="sortByDateCmd">
-            <i class="menuIcon fa fa-check mx-2"></i>
+            ${sortByDate ? checkMarkHtml : noCheckMarkHtml}
             <i class="menuIcon fa fa-calendar mx-2"></i>
             Photos par date de création
             </span>
             <span class="dropdown-item" id="sortByOwnersCmd">
-            <i class="menuIcon fa fa-fw mx-2"></i>
+            ${sortByOwners ? checkMarkHtml : noCheckMarkHtml}
             <i class="menuIcon fa fa-users mx-2"></i>
             Photos par créateur
             </span>
             <span class="dropdown-item" id="sortByLikesCmd">
-            <i class="menuIcon fa fa-fw mx-2"></i>
+            ${sortByLikes ? checkMarkHtml : noCheckMarkHtml}
             <i class="menuIcon fa fa-user mx-2"></i>
             Photos les plus aiméés
             </span>
             <span class="dropdown-item" id="ownerOnlyCmd">
-            <i class="menuIcon fa fa-fw mx-2"></i>
+            ${sortByMyPhotos ? checkMarkHtml : noCheckMarkHtml}
             <i class="menuIcon fa fa-user mx-2"></i>
             Mes photos
-            </span>
-            <div class="dropdown-divider"></div>
-            <span class="dropdown-item" id="aboutCmd">
-            <i class="menuIcon fa fa-info-circle mx-2"></i>
-            À propos...
             </span>
 
         `;
@@ -534,12 +531,15 @@ async function renderPhotosList() {
 
 function renderPhotoDetails(id) {
     let likeImage = '<i class="fa-regular fa-thumbs-up"></i>';
+    let likedImage = '<i class="fa fa-thumb-up"></i>';
     //<i class="fa-solid fa-thumbs-up"></i>
     eraseContent();
     UpdateHeader("Détails", "details");
     $("#newPhotoCmd").hide();
     let Photo = API.GetPhotosById(id);
     Photo.then(function (data) {
+        let like = API.GetLikeByPhotoId(data.Id);
+        console.log(like);
         $("#content").append(`
             <div>
             <i class="fa-regular fa-thumb-up"></i>
@@ -557,14 +557,19 @@ function renderPhotoDetails(id) {
                         month: 'long',
                         day: 'numeric'
                     })}</span>
-                    <span onclick="CreateLike(${Photo})">${likeImage}</span></div>
+                    <span id="likeCmd">${likeImage}</span></div>
                 </div>
                 <div class='photoDetailsDescription'>
                     <span>${data.Description}</span>
                 </div>
             </div>
         `);
+
+        $('#likeCmd').on('click', async function(){
+            await API.CreateLike(data);
+        })
     });
+
 }
 
 function renderVerify() {
