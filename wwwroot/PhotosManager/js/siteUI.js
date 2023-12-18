@@ -371,7 +371,7 @@ async function renderPhotos() {
         renderLoginForm();
     }
 }
-async function renderPhotosList() {
+async function renderPhotosList() { 
     let photos = await API.GetPhotos();
     let loggedUser = API.retrieveLoggedUser();
     let ownerCommands = "";
@@ -835,8 +835,12 @@ async function renderConfirmDeletePhoto(id) {
 
 
     }
-    $("#deletePhotoCmd").on("click", deletePhoto(Photo.Id));
-    $("#cancelDeletePhotoCmd").on("click", renderPhotos);
+    $("#deletePhotoCmd").on("click", function() {
+        deletePhoto(Photo.Id);
+    });
+    $("#cancelDeletePhotoCmd").on("click", function(){
+        renderPhotos();
+    });
 
 }
 
