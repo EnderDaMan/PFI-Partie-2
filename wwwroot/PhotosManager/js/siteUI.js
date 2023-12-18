@@ -329,51 +329,11 @@ async function modifyPhoto(credential) {
         renderPhotos();
     }
 }
-async function CreateLike(photoId, userId, alreadyLiked = false){
-    let photo = await API.GetPhotosById(photoId);
-    let photoLikes = await API.GetPhotoLikes(photoId);
-
-    API.LikePhoto(photoId, userId).then(response => {
-        API.GetPhotoLikes(photoId).then(updatedLikes => {
-            photoLikes = updatedLikes;
-        });
-
-        console.log(response);
-
-        let liked = photoLikes.some(like => like.UserId === API.retrieveLoggedUser().Id);
-        let thumbsUpIconClass = liked ? "fa" : "fa-regular";
-        let likeCounter = photoLikes.length;
-
-
-        let hasFaClass = $(`#${photo.Id}-Likes i`).hasClass('fa');
-        let hasFaRegularClass = $(`#${photo.Id}-Likes i`).hasClass('fa-regular');
-
-        if (!hasFaClass) {
-            thumbsUpIconClass = "fa"
-
-            if (!alreadyLiked)
-                likeCounter++;
-        } else {
-            thumbsUpIconClass = "fa-regular"
-            if (likeCounter > 0)
-                likeCounter--;
-        }
-
-        const uniqueUserNames = [...new Set(photoLikes.map(like => like.UserName))];
-        const displayedUserNames = uniqueUserNames.slice(0, 10);
-
-        $(`#${photo.Id}-Likes`).html(`${likeCounter} <i class="cmdIcon ${thumbsUpIconClass} fa-thumbs-up fa-2x" title="${displayedUserNames}"></i>`);
-
-        $(`#${photo.Id}-Likes i`).on('click', function() {
-            likePhoto(photo.Id, API.retrieveLoggedUser().Id, alreadyLiked);
-        });
-    });
+async function CreateLike(photoId, userId){
+    let likePhoto = await API.CreateLike(photoId, userId);
 }
 async function GetLikes(data){
-    let likes = API.GetLikeByPhotoId(data);
-    likes.then(result =>{
-        return result;
-    })
+    return await API.GetLikeByPhotoId(data);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -478,6 +438,8 @@ async function renderPhotos() {
     }
 }
 async function renderPhotosList() { 
+    let likeImage = '<i class="fa-regular fa-thumbs-up"></i>';
+    let likedImage = '<i class="fa fa-thumb-up"></i>';
     let photos = await API.GetPhotos();
     let loggedUser = API.retrieveLoggedUser();
     let ownerCommands = "";
@@ -517,7 +479,10 @@ async function renderPhotosList() {
         }
     eraseContent();
     sortedData.forEach(photo => {
-       
+        let likes = GetLikes(photo.Id);
+        if(!likes){
+            likes = 0;
+        }
         let sharedImage = "";
         if ((loggedUser.Id == photo.Owner.Id) || loggedUser.isAdmin) {
             ownerCommands = `<span class="editCmd" photoId="${photo.Id}"> <i class="fa-solid fa-pencil dodgerblueCmd" ></i></span>
@@ -541,6 +506,7 @@ async function renderPhotosList() {
                     ${sharedImage}
                     <img class="photoDetailsCmd" photoId="${photo.Id}"style="width: 350px; height: 350px; object-fit: fill; border-radius: 20px;" src="${photo.Image}" alt="unloadedPhoto"/>
                 </div>
+                <div>
                 <span class="photoCreationDate">${new Date(photo.Date).toLocaleDateString('fr-FR', {
             weekday: 'long',
             year: 'numeric',
@@ -550,6 +516,9 @@ async function renderPhotosList() {
             minute: "2-digit",
             second: "2-digit"
         })}</span>
+        <span>${likes}</span>
+                    <span id="likeCmd">${likeImage}</span></div>
+        </div>
             </div>
         `);
 
@@ -574,13 +543,12 @@ function renderPhotoDetails(id) {
     let loggedUser = API.retrieveLoggedUser();
     let likeImage = '<i class="fa-regular fa-thumbs-up"></i>';
     let likedImage = '<i class="fa fa-thumb-up"></i>';
-    //<i class="fa-solid fa-thumbs-up"></i>
     eraseContent();
     UpdateHeader("Détails", "details");
     $("#newPhotoCmd").hide();
     let Photo = API.GetPhotosById(id);
     Photo.then(function (data) {
-        let likes = GetLikes(Photo.Id);
+        let likes = GetLikes(id);
         $("#content").append(`
             <div>
             <i class="fa-regular fa-thumb-up"></i>

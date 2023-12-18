@@ -3,6 +3,9 @@ import Repository from '../models/repository.js';
 import PhotoModel from '../models/photo.js';
 import PhotoLikeModel from '../models/photolikes.js';
 import Controller from './Controller.js';
+import {nowInSeconds} from "../utilities.js";
+import TokenManager from "../tokensManager.js";
+import CachedRequests from "../CachedRequestsManager.js";
 
 export default class PhotoLikesController extends Controller {
     constructor(HttpContext) {
