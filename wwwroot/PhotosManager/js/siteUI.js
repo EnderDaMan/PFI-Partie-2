@@ -104,10 +104,10 @@ function attachCmd() {
     });
     $('#ownerOnlyCmd').on('click', function(){
         sorted = true;
-        sortByDate = true;
+        sortByDate = false;
         sortByLikes = false;
         sortByOwners = false;
-        sortByMyPhotos = false;
+        sortByMyPhotos = true;
         renderPhotos();
     });
     $('#editProfilMenuCmd').on('click', renderEditProfilForm);
@@ -445,6 +445,7 @@ async function renderPhotosList() {
     let ownerCommands = "";
 
     let sortBy;
+    let sortedData;
     /*
     sorted = true;
         sortByDate = false;
@@ -457,20 +458,27 @@ async function renderPhotosList() {
                 sortBy = (a, b) => {
                     return b.Date - a.Date;
                 }
-                photos.data.sort(sortBy);
+                sortedData = photos.data.sort(sortBy);
             }
             if(sortByLikes){
 
             }
             if(sortByOwners){
-
+                sortedData = photos.data.sort();
             }
             if(sortByMyPhotos){
-
+                sortedData = photos.data.filter(item => {
+                    console.log(item.Owner.Id);
+                    console.log(loggedUser.Id);
+                    return item.OwnerId === loggedUser.Id
+                });
             }
         }
+        else{
+            sortedData = photos.data;
+        }
     eraseContent();
-    photos.data.forEach(photo => {
+    sortedData.forEach(photo => {
        
         let sharedImage = "";
         if ((loggedUser.Id == photo.Owner.Id) || loggedUser.isAdmin) {
